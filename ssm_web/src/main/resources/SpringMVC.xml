@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security.xsd">
+    <!--创建Spring容器要扫描的包-->
+    <context:component-scan base-package="fun.chenqi.controller"/>
+
+    <!--引入其他配置文件-->
+    <import resource="classpath:applicationContext-dao.xml"/>
+    <import resource="classpath:applicationContext-service.xml"/>
+
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+
+    <!--替代注解处理器和适配器的配置-->
+    <!-- 引用自定义类型转换器 -->
+    <mvc:annotation-driven/>
+
+    <!-- 静态资源放行 以下两种都可以
+    <mvc:resources mapping="/css/**" location="/css/"></mvc:resources>
+    -->
+    <mvc:default-servlet-handler/>
+
+    <!--开启AOP的注解 日志，手写事务等功能需要-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <!-- 开启权限控制注解 security注解-->
+    <security:global-method-security secured-annotations="enabled"/>
+
+    <!-- 支持表达式注解
+    <security:global-method-security pre-post-annotations="enabled"/>
+    -->
+
+    <!--  jsr-250注解
+     1.引入实现jsr规范的依赖
+     <dependency>
+             <groupId>javax.annotation</groupId>
+             <artifactId>jsr250-api</artifactId>
+             <version>1.0</version>
+         </dependency>
+     2.为了拦截请求controller中的方法 需要在springMvc中配置注解支持
+     <security:global-method-security jsr250-annotations="enabled">
+    -->
+
+
+</beans>

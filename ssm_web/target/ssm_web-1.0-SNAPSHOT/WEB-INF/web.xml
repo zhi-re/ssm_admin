@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         id="WebApp_ID" version="2.5">
+
+    <!--配置spring提供监听器。监听servletContext对象的创建，当创建ServletContext对象时，为我们创建容器，并存入application域中
+      该监听器只能读取文件位置在WEB-INF目录中的，并且文件名称为applicationContext.xml的配置文件
+      我们可以通过配置ServletContext对象的初始化参数，指定配置文件的位置和名称
+  -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <!--使用通配符加载 ，因为dao和Service 模块都有自己的配置文件-->
+        <!--如果不想写配置文件 可以把完整的配置写在resource路径下用 classpath:applicationContext.xml 加载 -->
+        <param-value>
+            classpath*:applicationContext*.xml,
+            <!--加载加载SpringSecurity权限框架的配置文件-->
+            classpath:springSecurity.xml
+        </param-value>
+        <!--<param-value>classpath:applicationContext.xml</param-value>-->
+    </context-param>
+
+
+    <!--配置核心控制器-一个servlet-->
+    <servlet>
+        <servlet-name>SpringMVCDispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 配置初始化参数，用于读取 SpringMVC 的配置文件 -->
+        <init-param>
+            <!--contextConfigLocation固定写法-->
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:SpringMVC.xml</param-value>
+        </init-param>
+        <!-- 配置 servlet 的对象的创建时间点：应用加载时创建。
+            取值只能是非 0 正整数，表示启动顺序 -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpringMVCDispatcherServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!--配置springmvc提供的字符集过滤器，用于解决post请求的乱码问题-->
+    <filter>
+        <filter-name>characterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <!--配置过滤器的初始化参数，指定字符集 -->
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>characterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!--配置SpringSecurity权限框架的过滤器执行链-->
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!--
+     < url-pattern>/</url-pattern>  会匹配到/login这样的路径型url，不会匹配到模式为*.jsp这样的后缀型url
+     < url-pattern>/*</url-pattern> 会匹配所有url：路径型的和后缀型的url(包括/login,*.jsp,*.js和*.html等)
+    -->
+</web-app>
